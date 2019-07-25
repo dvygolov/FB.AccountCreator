@@ -21,8 +21,7 @@ namespace FB.AccountCreator
             _streets = File.ReadAllLines("Addresses.txt").ToList();
         }
 
-        public void Create(string bm, string businessName, string accName, string currency, string zone,
-            int cnt = 1, bool useRandomValues = true)
+        public void Create(string bm, string businessName, string accName, string currency, string zone,int cnt)
         {
             var houseNum = new Random().Next(1, 101);
             var r = new Random().Next(0, _streets.Count);
@@ -32,6 +31,9 @@ namespace FB.AccountCreator
 
             for (int i = 0; i < cnt; i++)
             {
+                var newAccName = accName.EndsWith('#') ? 
+                    accName.Replace("#", (i + 2).ToString()) : 
+                    $"{accName}{i + 1}";
                 var request = new RestRequest($"{bm}/adaccount", Method.POST);
                 request.AddParameter("access_token", _accessToken);
                 request.AddParameter("end_advertiser", "NONE");
@@ -39,11 +41,11 @@ namespace FB.AccountCreator
                 request.AddParameter("partner", "NONE");
                 request.AddParameter("currency", currency);
                 request.AddParameter("timezone_id", zone);
-                request.AddParameter("name", $"{accName}{i + 1}");
+                request.AddParameter("name", newAccName);
                 request.AddParameter("access_token", _accessToken);
                 var response = _restClient.Execute(request);
                 var json = (JObject)JsonConvert.DeserializeObject(response.Content);
-                ErrorChecker.HasErrorsInResponse(json,true);
+                ErrorChecker.HasErrorsInResponse(json, true);
                 var accId = json["id"].ToString();
                 Console.WriteLine($"Создан аккаунт с id {accId}");
 
@@ -52,22 +54,22 @@ namespace FB.AccountCreator
                 request.AddQueryParameter("access_token", _accessToken);
                 response = _restClient.Execute(request);
                 json = (JObject)JsonConvert.DeserializeObject(response.Content);
-                ErrorChecker.HasErrorsInResponse(json,true);
-                string userId=string.Empty;
+                ErrorChecker.HasErrorsInResponse(json, true);
+                string userId = string.Empty;
                 if (json["data"].Count() > 1)
                 {
                     Console.WriteLine("В бизнес менеджере найдено несколько пользователей.");
                     Console.WriteLine("Какому раздать права на этот аккаунт?");
-                    int j=1;
-                    var users=json["data"].ToList();
-                    foreach(var u in users)
+                    int j = 1;
+                    var users = json["data"].ToList();
+                    foreach (var u in users)
                     {
                         Console.WriteLine($"{j}.{u["name"]}");
                         j++;
                     }
                     Console.Write("Выбор:");
-                    var ind=int.Parse(Console.ReadLine())-1;
-                    userId=users[ind]["id"].ToString();
+                    var ind = int.Parse(Console.ReadLine()) - 1;
+                    userId = users[ind]["id"].ToString();
                 }
 
                 request = new RestRequest($"{accId}/assigned_users", Method.POST);
@@ -76,7 +78,7 @@ namespace FB.AccountCreator
                 request.AddParameter("tasks", "[\"ANALYZE\",\"ADVERTISE\",\"MANAGE\"]");
                 response = _restClient.Execute(request);
                 json = (JObject)JsonConvert.DeserializeObject(response.Content);
-                ErrorChecker.HasErrorsInResponse(json,true);
+                ErrorChecker.HasErrorsInResponse(json, true);
                 Console.WriteLine($"Текущий пользователь добавлен!");
 
                 Console.WriteLine($"Снимаем НДС...");
@@ -87,7 +89,7 @@ namespace FB.AccountCreator
                     "{\"business_name\":\"" + businessName + "\",\"business_street\":\"" + street + " " + houseNum + "\",\"business_city\":\"Минск\",\"business_state\":\"BY\",\"business_zip\":\"" + zip + "\",\"business_country_code\":\"BY\"}");
                 response = _restClient.Execute(request);
                 json = (JObject)JsonConvert.DeserializeObject(response.Content);
-                ErrorChecker.HasErrorsInResponse(json,true);
+                ErrorChecker.HasErrorsInResponse(json, true);
                 Console.WriteLine($"НДС снят!");
             }
         }

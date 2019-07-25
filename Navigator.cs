@@ -172,7 +172,7 @@ namespace FB.AccountCreator
             return string.Empty;
         }
 
-        private List<JToken> GetAllBms()
+        public List<JToken> GetAllBms()
         {
             var request = new RestRequest($"me/businesses", Method.GET);
             request.AddQueryParameter("access_token", _accessToken);
@@ -182,7 +182,7 @@ namespace FB.AccountCreator
             return bms;
         }
 
-        private List<JToken> GetBmsAdAccounts(string bmid, bool includeBanned = false)
+        public List<JToken> GetBmsAdAccounts(string bmid, bool includeBanned = false)
         {
             var request = new RestRequest($"{bmid}/owned_ad_accounts", Method.GET);
             request.AddQueryParameter("access_token", _accessToken);

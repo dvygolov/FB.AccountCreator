@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Text.RegularExpressions;
 
 namespace FB.AccountCreator
 {
@@ -22,8 +23,19 @@ namespace FB.AccountCreator
             var bm = nav.SelectBusinessManager();
             Console.Write("Введите количество аккаунтов, которое нужно создать:");
             var count = int.Parse(Console.ReadLine());
-            Console.Write("Введите имя аккаунта:");
-            var name = Console.ReadLine();
+            var existing = nav.GetBmsAdAccounts(bm, true);
+            var nameRegex = "^(.*?1)$";
+            string accName;
+            if (existing.Count == 1 && Regex.IsMatch(existing[0]["name"].ToString(), nameRegex))
+            {
+                Console.WriteLine("В БМ найден один акк с именем, оканчивающимся на 1, будет заюзано это имя");
+                accName = existing[0]["name"].ToString().Replace('1','#');
+            }
+            else
+            {
+                Console.Write("Введите имя аккаунта:");
+                accName = Console.ReadLine();
+            }
             Console.Write("Введите название компании (2 слова, для НДС):");
             var businessName = Console.ReadLine();
             if (count > 1)
@@ -40,7 +52,7 @@ namespace FB.AccountCreator
             var zone = tz.GetTimeZoneCodeByIndex(int.Parse(Console.ReadLine()));
             Console.WriteLine("Начинаем процедуру создания аккаунта...");
             var arc = new AccountCreator(apiAddress, accessToken);
-            arc.Create(bm, businessName, name, cur, zone, count);
+            arc.Create(bm, businessName, accName, cur, zone, count);
             Console.WriteLine("Аккаунт(ы) создан(ы). Лейте в плюс, гайз!");
         }
     }
