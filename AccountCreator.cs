@@ -21,18 +21,19 @@ namespace FB.AccountCreator
             _streets = File.ReadAllLines("Addresses.txt").ToList();
         }
 
-        public void Create(string bm, string businessName, string accName, string currency, string zone,int cnt)
+        public void Create(string bm, string businessName, string accName, string currency, string zone, int cnt)
         {
             var houseNum = new Random().Next(1, 101);
             var r = new Random().Next(0, _streets.Count);
             var strAndZip = _streets[r];
             var street = strAndZip.Split('-')[1];
             var zip = strAndZip.Split('-')[0];
+            string userId = string.Empty;
 
             for (int i = 0; i < cnt; i++)
             {
-                var newAccName = accName.EndsWith('#') ? 
-                    accName.Replace("#", (i + 2).ToString()) : 
+                var newAccName = accName.EndsWith('#') ?
+                    accName.Replace("#", (i + 2).ToString()) :
                     $"{accName}{i + 1}";
                 var request = new RestRequest($"{bm}/adaccount", Method.POST);
                 request.AddParameter("access_token", _accessToken);
@@ -50,26 +51,30 @@ namespace FB.AccountCreator
                 Console.WriteLine($"Создан аккаунт с id {accId}");
 
                 Console.WriteLine($"Добавляем текущего пользователя админом...");
-                request = new RestRequest($"{bm}/business_users", Method.GET);
-                request.AddQueryParameter("access_token", _accessToken);
-                response = _restClient.Execute(request);
-                json = (JObject)JsonConvert.DeserializeObject(response.Content);
-                ErrorChecker.HasErrorsInResponse(json, true);
-                string userId = string.Empty;
-                if (json["data"].Count() > 1)
+                if (userId == string.Empty)
                 {
-                    Console.WriteLine("В бизнес менеджере найдено несколько пользователей.");
-                    Console.WriteLine("Какому раздать права на этот аккаунт?");
-                    int j = 1;
+                    request = new RestRequest($"{bm}/business_users", Method.GET);
+                    request.AddQueryParameter("access_token", _accessToken);
+                    response = _restClient.Execute(request);
+                    json = (JObject)JsonConvert.DeserializeObject(response.Content);
+                    ErrorChecker.HasErrorsInResponse(json, true);
                     var users = json["data"].ToList();
-                    foreach (var u in users)
+                    if (users.Count > 1)
                     {
-                        Console.WriteLine($"{j}.{u["name"]}");
-                        j++;
+                        Console.WriteLine("В бизнес менеджере найдено несколько пользователей.");
+                        Console.WriteLine("Какому раздать права на этот аккаунт?");
+                        int j = 1;
+                        foreach (var u in users)
+                        {
+                            Console.WriteLine($"{j}.{u["name"]}");
+                            j++;
+                        }
+                        Console.Write("Выбор:");
+                        var ind = int.Parse(Console.ReadLine()) - 1;
+                        userId = users[ind]["id"].ToString();
                     }
-                    Console.Write("Выбор:");
-                    var ind = int.Parse(Console.ReadLine()) - 1;
-                    userId = users[ind]["id"].ToString();
+                    else
+                        userId =users[0]["id"].ToString();
                 }
 
                 request = new RestRequest($"{accId}/assigned_users", Method.POST);
