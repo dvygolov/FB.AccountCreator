@@ -48,7 +48,7 @@ namespace FB.AccountCreator
                 var json = (JObject)JsonConvert.DeserializeObject(response.Content);
                 ErrorChecker.HasErrorsInResponse(json, true);
                 var accId = json["id"].ToString();
-                Console.WriteLine($"Создан аккаунт с id {accId}");
+                Console.WriteLine($"Создан аккаунт {newAccName} с id {accId}");
 
                 Console.WriteLine($"Добавляем текущего пользователя админом...");
                 if (userId == string.Empty)
