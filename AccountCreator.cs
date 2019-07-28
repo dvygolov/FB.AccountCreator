@@ -33,7 +33,7 @@ namespace FB.AccountCreator
             for (int i = 0; i < cnt; i++)
             {
                 var newAccName = accName.EndsWith('#') ?
-                    accName.Replace("#", (i + 2).ToString()) :
+                    $"{accName.TrimEnd('#')}{i + 2}" :
                     $"{accName}{i + 1}";
                 var request = new RestRequest($"{bm}/adaccount", Method.POST);
                 request.AddParameter("access_token", _accessToken);

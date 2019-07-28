@@ -24,12 +24,21 @@ namespace FB.AccountCreator
             Console.Write("Введите количество аккаунтов, которое нужно создать:");
             var count = int.Parse(Console.ReadLine());
             var existing = nav.GetBmsAdAccounts(bm, true);
-            var nameRegex = "^(.*?1)$";
+            var nameRegex = "^(.*?)(1)$";
             string accName;
-            if (existing.Count == 1 && Regex.IsMatch(existing[0]["name"].ToString(), nameRegex))
+            if (existing.Count == 1)
             {
-                Console.WriteLine("В БМ найден один акк с именем, оканчивающимся на 1, будет заюзано это имя");
-                accName = existing[0]["name"].ToString().Replace('1','#');
+                var firstAccName=existing[0]["name"].ToString();
+                if (Regex.IsMatch(firstAccName, nameRegex))
+                {
+                    Console.WriteLine("В БМ найден один акк с именем, оканчивающимся на 1, будет заюзано это имя");
+                    accName = Regex.Replace(firstAccName,nameRegex,"$1#");
+                }
+                else
+                {
+                    Console.Write("Введите имя аккаунта:");
+                    accName = Console.ReadLine();
+                }
             }
             else
             {
