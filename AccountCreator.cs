@@ -38,7 +38,7 @@ namespace FB.AccountCreator
                 var request = new RestRequest($"{bm}/adaccount", Method.POST);
                 request.AddParameter("access_token", _accessToken);
                 request.AddParameter("end_advertiser", "NONE");
-				request.AddParameter("is_notifications_enabled", "0");
+				request.AddParameter("is_notifications_enabled", "false");
                 request.AddParameter("media_agency", "NONE");
                 request.AddParameter("partner", "NONE");
                 request.AddParameter("currency", currency);
