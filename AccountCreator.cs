@@ -38,7 +38,6 @@ namespace FB.AccountCreator
                 var request = new RestRequest($"{bm}/adaccount", Method.POST);
                 request.AddParameter("access_token", _accessToken);
                 request.AddParameter("end_advertiser", "NONE");
-				request.AddParameter("is_notifications_enabled", "false");
                 request.AddParameter("media_agency", "NONE");
                 request.AddParameter("partner", "NONE");
                 request.AddParameter("currency", currency);
@@ -88,9 +87,10 @@ namespace FB.AccountCreator
                 Console.WriteLine($"Текущий пользователь добавлен!");
 
                 Console.WriteLine($"Снимаем НДС...");
-                //снимаем проклятие НДС
+                //снимаем проклятие НДС и убираем уведомления
                 request = new RestRequest($"{accId}", Method.POST);
                 request.AddParameter("access_token", _accessToken);
+				request.AddParameter("is_notifications_enabled", "false");
                 request.AddParameter("business_info",
                     "{\"business_name\":\"" + businessName + "\",\"business_street\":\"" + street + " " + houseNum + "\",\"business_city\":\"Минск\",\"business_state\":\"BY\",\"business_zip\":\"" + zip + "\",\"business_country_code\":\"BY\"}");
                 response = _restClient.Execute(request);
